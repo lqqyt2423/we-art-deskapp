@@ -20,5 +20,14 @@
     "eslint": "^6.8.0",
     "nodemon": "^2.0.3",
     "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "@types/cheerio": "^0.22.17",
+    "@types/request": "^2.48.4",
+    "@types/request-promise": "^4.1.46",
+    "cheerio": "^1.0.0-rc.3",
+    "moment": "^2.24.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.5"
   }
 }

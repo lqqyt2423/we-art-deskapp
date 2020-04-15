@@ -4,7 +4,9 @@ import * as crypto from 'crypto';
 import * as mkdirp from 'mkdirp';
 
 export async function initMkdirp() {
-  await mkdirp(getPath('html/asset'));
+  await mkdirp(getPath('asset'));
+  await mkdirp(getPath('html'));
+  await mkdirp(getPath('target-html'));
 }
 
 export function getPath(pathname: string): string {

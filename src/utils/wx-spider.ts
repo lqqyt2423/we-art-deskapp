@@ -81,7 +81,7 @@ export async function getBody(link: string): Promise<string> {
       });
 
       try {
-        await imgCache.get();
+        await imgCache.set();
       } catch (err) {
         logger.warn('get img %s failed', imgLink);
         logger.error(err);

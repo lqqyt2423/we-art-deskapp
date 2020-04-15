@@ -1,0 +1,24 @@
+{
+  "name": "we-art-deskapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/main.js",
+  "scripts": {
+    "build-asset": "cp src/*.html dist/",
+    "build": "npm run build-asset && tsc",
+    "dev1": "tsc -w",
+    "dev2": "nodemon --exec electron dist/main.js",
+    "dev": "npm run dev1 & npm run dev2",
+    "start": "electron dist/main.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.28.0",
+    "@typescript-eslint/parser": "^2.28.0",
+    "electron": "^8.2.2",
+    "eslint": "^6.8.0",
+    "nodemon": "^2.0.3",
+    "typescript": "^3.8.3"
+  }
+}

@@ -8,7 +8,7 @@ const fsUnlink = util.promisify(fs.unlink);
 
 export default class FileCache {
   constructor(private readonly pathname: string,
-    private readonly getFn: () => Promise<Buffer>) { }
+    private readonly getFn: () => Promise<Buffer | String>) { }
 
   public async exist(): Promise<boolean> {
     try {
@@ -19,7 +19,7 @@ export default class FileCache {
     }
   }
 
-  public async get(): Promise<Buffer> {
+  public async get(): Promise<Buffer | String> {
     const isExist = await this.exist();
     if (isExist) return fsReadFile(this.pathname);
 

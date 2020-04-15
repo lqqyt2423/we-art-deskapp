@@ -4,6 +4,10 @@ import { getPath, md5 } from './index';
 import * as cheerio from 'cheerio';
 import * as moment from 'moment';
 import logger from './logger';
+import * as fs from 'fs';
+import * as path from 'path';
+
+const postTempHtml = fs.readFileSync(path.join(__dirname, 'postTemp.html'), 'utf8');
 
 export async function getBody(link: string): Promise<string> {
   // todo: 更详细地识别链接
@@ -65,8 +69,8 @@ export async function getBody(link: string): Promise<string> {
 
     const hash = md5(link);
     const filename = hash + '.' + extname;
-    const pathname = getPath('html/asset/' + filename);
-    const srcname = 'asset/' + filename;
+    const pathname = getPath('asset/' + filename);
+    const srcname = '../asset/' + filename;
     pathnames.push(pathname);
     return `src=${srcname}`;
   });
@@ -90,4 +94,27 @@ export async function getBody(link: string): Promise<string> {
   }
 
   return content;
+}
+
+export async function generateHtml(urls: string[]): Promise<string> {
+  let body = '';
+
+  for (let i = 0, len = urls.length; i < len; i++) {
+    const content = await getBody(urls[i]);
+    body += `<div id="img-content">${content}</div>`;
+  }
+
+  const html = postTempHtml.replace('POST_CONTENT', body);
+  return html;
+}
+
+export async function generateHtmlThenSave(urls: string[]): Promise<void> {
+  const hash = md5(urls.join(','));
+  const filename = hash + '.html';
+  const pathname = getPath('target-html/' + filename);
+
+  const cache = new FileCache(pathname, async () => {
+    return await generateHtml(urls);
+  });
+  await cache.set();
 }

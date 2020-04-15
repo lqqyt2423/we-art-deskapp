@@ -1,0 +1,11 @@
+{
+  "include": [
+    "src/**/*"
+  ],
+  "compilerOptions": {
+    "target": "ES5",
+    "outDir": "./dist/",
+    "sourceMap": true,
+    "module": "commonjs"
+  }
+}

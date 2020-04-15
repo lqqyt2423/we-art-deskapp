@@ -6,17 +6,21 @@ const fsWriteFile = util.promisify(fs.writeFile);
 const fsReadFile = util.promisify(fs.readFile);
 const fsUnlink = util.promisify(fs.unlink);
 
+export async function existFn(pathname): Promise<boolean> {
+  try {
+    await fsStat(pathname);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 export default class FileCache {
   constructor(private readonly pathname: string,
     private readonly getFn: () => Promise<Buffer | String>) { }
 
   public async exist(): Promise<boolean> {
-    try {
-      await fsStat(this.pathname);
-      return true;
-    } catch (e) {
-      return false;
-    }
+    return await existFn(this.pathname);
   }
 
   public async get(): Promise<Buffer | String> {

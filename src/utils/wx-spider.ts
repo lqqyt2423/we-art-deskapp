@@ -1,6 +1,6 @@
 import * as rp from 'request-promise';
 import FileCache from './file-cache';
-import { getPath, md5 } from './index';
+import { getPath, md5, runCmd } from './index';
 import * as cheerio from 'cheerio';
 import * as moment from 'moment';
 import logger from './logger';
@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 const postTempHtml = fs.readFileSync(path.join(__dirname, 'postTemp.html'), 'utf8');
+const xslPath = path.resolve(__dirname, './wk_catalog.xsl');
 
 export async function getBody(link: string): Promise<string> {
   // todo: 更详细地识别链接
@@ -108,7 +109,7 @@ export async function generateHtml(urls: string[]): Promise<string> {
   return html;
 }
 
-export async function generateHtmlThenSave(urls: string[]): Promise<void> {
+export async function generateHtmlThenSave(urls: string[]): Promise<string> {
   const hash = md5(urls.join(','));
   const filename = hash + '.html';
   const pathname = getPath('target-html/' + filename);
@@ -117,4 +118,13 @@ export async function generateHtmlThenSave(urls: string[]): Promise<void> {
     return await generateHtml(urls);
   });
   await cache.set();
+
+  return pathname;
+}
+
+export async function generatePdf(link: string, pathname: string) {
+  // 低质量 A4 页脚页码居中 去除背景 渲染目录
+  const command = `wkhtmltopdf --lowquality --page-size A4 --footer-center [page] --footer-font-size 12 --no-background toc --xsl-style-sheet ${xslPath} ${link} ${pathname}`;
+  const { stdout, stderr } = await runCmd(command);
+  logger.info('generatePdf: link: %s, pathanme: %s, stdout: %s, stderr: %s', link, pathname, stdout, stderr);
 }

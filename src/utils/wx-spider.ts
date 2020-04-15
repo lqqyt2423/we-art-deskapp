@@ -1,5 +1,5 @@
 import * as rp from 'request-promise';
-import FileCache from './file-cache';
+import FileCache, { existFn } from './file-cache';
 import { getPath, md5, runCmd } from './index';
 import * as cheerio from 'cheerio';
 import * as moment from 'moment';
@@ -127,4 +127,13 @@ export async function generatePdf(link: string, pathname: string) {
   const command = `wkhtmltopdf --lowquality --page-size A4 --footer-center [page] --footer-font-size 12 --no-background toc --xsl-style-sheet ${xslPath} ${link} ${pathname}`;
   const { stdout, stderr } = await runCmd(command);
   logger.info('generatePdf: link: %s, pathanme: %s, stdout: %s, stderr: %s', link, pathname, stdout, stderr);
+}
+
+export async function generatePdfByLinks(urls: string[]) {
+  const htmlPathname = await generateHtmlThenSave(urls);
+  const pdfPathname = htmlPathname.replace('target-html/', 'target-pdf/').replace(/\.html$/, '.pdf');
+
+  if (await existFn(pdfPathname)) return pdfPathname;
+  await generatePdf(htmlPathname, pdfPathname);
+  return pdfPathname;
 }

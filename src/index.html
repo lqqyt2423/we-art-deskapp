@@ -2,15 +2,28 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>hello world</title>
+    <title>微信离线助手 - 力气强</title>
     <meta http-equiv="Content-Secuity-Policy" content="script-src 'self' 'unsafe-inline';" />
     <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+
+    <link href="style/bootstrap.min.css" rel="stylesheet">
+    <link href="style/github-markdown.min.css" rel="stylesheet">
+    <link href="style/style.css" rel="stylesheet">
   </head>
   <body>
-    <h1>hello world</h1>
-    we are using node <span id="node-version"></span>,
-    chromium <span id="chrome-version"></span>,
-    and electron <span id="electron-version"></span>.
+    <div class="panel panel-default" id="content-wrapper">
+      <div class="panel-body markdown-body" id="content">
+        <h1>微信文章转PDF</h1>
+        <p>输入微信文章链接，将微信文章转为可离线阅读的PDF。可支持多个文章链接，将多篇文章合并为一个PDF。</p>
+        <p>完美转换文章中的样式，完全保留文章内所有的图片。</p>
+        <p>请在下面文本框内输入文章链接。如有多个文章链接，请用回车隔开，每行一个。</p>
+
+        <p><textarea id="links-value" placeholder="必填" class="form-control" rows="5" style="white-space: nowrap; font-size: 12px;"></textarea></p>
+        <p id="show-error" class="text-danger"></p>
+        <p id="show-info" class="text-info"></p>
+        <p><button id="generate-btn" class="btn btn-primary">确认生成PDF</button></p>
+      </div>
+    </div>
 
     <script src="./renderer.js"></script>
   </body>

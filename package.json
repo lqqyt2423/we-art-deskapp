@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/main.js",
   "scripts": {
-    "build-asset": "cp src/*.html dist/ && cp src/utils/*.html dist/utils/ && cp src/utils/*.xsl dist/utils/ && mkdir -p dist/style && cp src/style/*.css dist/style/",
+    "build-asset": "cp src/*.html dist/ && cp src/utils/*.html dist/utils/ && cp src/utils/*.xsl dist/utils/ && mkdir -p dist/style && cp src/style/*.css dist/style/ && mkdir -p dist/image && cp src/image/*.jpg dist/image",
     "build": "tsc && npm run build-asset",
     "dev1": "tsc -w",
     "dev2": "nodemon --exec electron dist/main.js",

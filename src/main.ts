@@ -1,6 +1,6 @@
 // Modules to control application life and create native browser window
 import { app, BrowserWindow, ipcMain } from 'electron';
-// import * as path from 'path';
+import * as path from 'path';
 import { generatePdfByLinks } from './utils/wx-spider';
 
 function createWindow() {
@@ -9,8 +9,8 @@ function createWindow() {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true,
-      // preload: path.join(__dirname, 'preload.js'),
+      // nodeIntegration: true,
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
 

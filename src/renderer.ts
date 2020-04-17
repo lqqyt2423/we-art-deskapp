@@ -5,7 +5,7 @@
 // selectively enable features needed in the rendering
 // process.
 
-const { ipcRenderer } = require('electron');
+const ipcRenderer = window.ipcRenderer;
 
 window.addEventListener('load', () => {
   const btnEle = document.getElementById('generate-btn');

@@ -2,6 +2,11 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 import { generatePdfByLinks } from './utils/wx-spider';
+import logger from './utils/logger';
+import { initMkdirp } from './utils/index';
+
+// 初始化
+initMkdirp();
 
 function createWindow() {
   // Create the browser window.
@@ -60,6 +65,7 @@ ipcMain.on('generate-pdf', async (event, urls: string[]) => {
     const pathname = await generatePdfByLinks(urls);
     event.reply('generate-pdf-reply', { status: 0, data: { pathname } });
   } catch (err) {
+    logger.error(err);
 
     if ((err.message as string).includes('command not found')) {
       event.reply('generate-pdf-reply', { status: 2, message: '请安装 wkhtmltopdf 软件' });

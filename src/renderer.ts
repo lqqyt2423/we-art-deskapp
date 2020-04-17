@@ -5,13 +5,39 @@
 // selectively enable features needed in the rendering
 // process.
 
-const ipcRenderer = window.ipcRenderer;
+const { ipcRenderer, shell } = window.electron;
 
 window.addEventListener('load', () => {
   const btnEle = document.getElementById('generate-btn');
   const valEle = document.getElementById('links-value') as HTMLTextAreaElement;
   const errorEle = document.getElementById('show-error');
   const infoEle = document.getElementById('show-info');
+
+  const pdfAreaEle = document.getElementById('show-pdf');
+  const pdfTextEle = document.getElementById('show-pdf-text');
+  const openPdfEle = document.getElementById('open-pdf');
+  const openPdfDirEle = document.getElementById('open-pdf-dir');
+
+  // 生成的 pdf 路径
+  let pdfPathname = '';
+
+  openPdfEle.addEventListener('click', () => {
+    shell.openItem(pdfPathname);
+  });
+  openPdfDirEle.addEventListener('click', () => {
+    shell.showItemInFolder(pdfPathname);
+  });
+
+  const showPdf = (pathname: string) => {
+    pdfPathname = pathname;
+    const filename = pathname.match(/\w+\.pdf$/)[0];
+    pdfTextEle.innerText = '成功：' + filename;
+    pdfAreaEle.classList.remove('d-none');
+  };
+
+  const clearPdf = () => {
+    pdfAreaEle.classList.add('d-none');
+  };
 
   const show = {
     error(text: string) {
@@ -33,7 +59,8 @@ window.addEventListener('load', () => {
       show.error('错误：' + res.message);
     }
     else if (res.status === 0) {
-      show.info(res.data.pathname);
+      // show.info(res.data.pathname);
+      showPdf(res.data.pathname);
     }
 
     btnEle.innerText = '确认生成PDF';
@@ -42,6 +69,8 @@ window.addEventListener('load', () => {
 
   btnEle.addEventListener('click', () => {
     show.clear();
+    clearPdf();
+
     const val = valEle.value;
     if (!val) return show.error('请确认输入微信文章链接');
 

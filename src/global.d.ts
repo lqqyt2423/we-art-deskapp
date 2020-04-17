@@ -1,8 +1,11 @@
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, shell } from 'electron';
 
 declare global {
   interface Window {
-    ipcRenderer: typeof ipcRenderer;
+    electron: {
+      ipcRenderer: typeof ipcRenderer;
+      shell: typeof shell;
+    }
   }
 }
 

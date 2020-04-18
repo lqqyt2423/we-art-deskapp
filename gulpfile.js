@@ -30,10 +30,29 @@ const build = series(
   }
 );
 
+const winBuild = series(
+  function () { return del('build'); },
+  function () {
+    return src('node_modules/electron/dist/**/*').pipe(dest('build/app/'));
+  },
+  function () {
+    return src('dist/**/*').pipe(dest('build/app/resources/app/'));
+  },
+  function () {
+    return src('package.json').pipe(dest('build/app/resources/app/'));
+  }
+);
+
 function toZip() {
   return src('build/**/*').pipe(zip(`weart${version}.zip`)).pipe(dest('build'));
+}
+
+function winToZip() {
+  return src('build/app/**/*').pipe(zip(`weart${version}.zip`)).pipe(dest('build'));
 }
 
 exports.preBuildAsset = preBuildAsset;
 exports.build = build;
 exports.toZip = toZip;
+exports.winBuild = winBuild;
+exports.winToZip = winToZip;

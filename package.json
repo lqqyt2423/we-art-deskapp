@@ -11,7 +11,8 @@
     "dev2": "nodemon --exec electron dist/main.js",
     "dev": "npm run dev1 & npm run dev2",
     "start": "electron dist/main.js",
-    "test": "mocha -t 10000"
+    "test": "mocha -t 10000",
+    "win-build": "npm run pre-build && gulp winBuild && cd build/app/resources/app && npm i --only=prod && gulp winToZip"
   },
   "author": "",
   "license": "MIT",

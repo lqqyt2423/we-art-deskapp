@@ -103,4 +103,20 @@ window.addEventListener('load', () => {
     showAdEle.classList.remove('d-none');
   });
   ipcRenderer.send('get-ad');
+
+
+  // 右键菜单
+  valEle.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    const hasVal = !!valEle.value;
+    ipcRenderer.send('right-click', { hasVal });
+  });
+
+  ipcRenderer.on('right-click-paste', (event, content) => {
+    valEle.value = (valEle.value || '') + content;
+  });
+
+  ipcRenderer.on('right-click-clear', () => {
+    valEle.value = '';
+  });
 });

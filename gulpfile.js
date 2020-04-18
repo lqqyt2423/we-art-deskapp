@@ -44,11 +44,11 @@ const winBuild = series(
 );
 
 function toZip() {
-  return src('build/**/*').pipe(zip(`weart${version}.zip`)).pipe(dest('build'));
+  return src('build/**/*').pipe(zip(`weart-mac-${version}.zip`)).pipe(dest('build'));
 }
 
 function winToZip() {
-  return src('build/app/**/*').pipe(zip(`weart${version}.zip`)).pipe(dest('build'));
+  return src('build/app/**/*').pipe(zip(`weart-win-${version}.zip`)).pipe(dest('build'));
 }
 
 exports.preBuildAsset = preBuildAsset;

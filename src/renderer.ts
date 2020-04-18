@@ -18,6 +18,9 @@ window.addEventListener('load', () => {
   const openPdfEle = document.getElementById('open-pdf');
   const openPdfDirEle = document.getElementById('open-pdf-dir');
 
+  const showAdEle = document.getElementById('show-ad');
+
+
   // 生成的 pdf 路径
   let pdfPathname = '';
 
@@ -39,6 +42,7 @@ window.addEventListener('load', () => {
     pdfAreaEle.classList.add('d-none');
   };
 
+
   const show = {
     error(text: string) {
       infoEle.innerText = '';
@@ -54,6 +58,7 @@ window.addEventListener('load', () => {
     },
   };
 
+
   ipcRenderer.on('generate-pdf-reply', (event, res) => {
     if (res.status === 2) {
       show.error('错误：' + res.message);
@@ -66,6 +71,7 @@ window.addEventListener('load', () => {
     btnEle.innerText = '确认生成PDF';
     btnEle.removeAttribute('disabled');
   });
+
 
   btnEle.addEventListener('click', () => {
     show.clear();
@@ -88,4 +94,13 @@ window.addEventListener('load', () => {
 
     ipcRenderer.send('generate-pdf', urls);
   });
+
+
+  ipcRenderer.on('show-ad', (event, content) => {
+    if (!content) return;
+
+    showAdEle.innerHTML = content;
+    showAdEle.classList.remove('d-none');
+  });
+  ipcRenderer.send('get-ad');
 });

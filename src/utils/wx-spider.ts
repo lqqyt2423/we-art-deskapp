@@ -132,7 +132,7 @@ export async function generatePdf(link: string, pathname: string) {
 
 export async function generatePdfByLinks(urls: string[]) {
   const htmlPathname = await generateHtmlThenSave(urls);
-  const pdfPathname = htmlPathname.replace('target-html/', 'target-pdf/').replace(/\.html$/, '.pdf');
+  const pdfPathname = htmlPathname.replace('target-html', 'target-pdf').replace(/\.html$/, '.pdf');
 
   if (await existFn(pdfPathname)) return pdfPathname;
   await generatePdf(htmlPathname, pdfPathname);

@@ -124,7 +124,8 @@ export async function generateHtmlThenSave(urls: string[]): Promise<string> {
 
 export async function generatePdf(link: string, pathname: string) {
   // 低质量 A4 页脚页码居中 去除背景 渲染目录
-  const command = `wkhtmltopdf --lowquality --page-size A4 --footer-center [page] --footer-font-size 12 --no-background toc --xsl-style-sheet ${xslPath} ${link} ${pathname}`;
+  const wkhtmltopdf = path.join(__dirname, '../bin/wkhtmltopdf');
+  const command = `${wkhtmltopdf} --lowquality --page-size A4 --footer-center [page] --footer-font-size 12 --no-background toc --xsl-style-sheet ${xslPath} ${link} ${pathname}`;
   const { stdout, stderr } = await runCmd(command);
   logger.info('generatePdf: link: %s, pathanme: %s, stdout: %s, stderr: %s', link, pathname, stdout, stderr);
 }

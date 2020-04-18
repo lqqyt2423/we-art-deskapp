@@ -4,6 +4,7 @@ import * as crypto from 'crypto';
 import * as mkdirp from 'mkdirp';
 import { exec } from 'child_process';
 import * as util from 'util';
+import logger from './logger';
 
 const execAsync = util.promisify(exec);
 
@@ -23,5 +24,6 @@ export function md5(data: Buffer | string): string {
 }
 
 export async function runCmd(command: string) {
+  logger.info('runCmd:', command);
   return await execAsync(command);
 }

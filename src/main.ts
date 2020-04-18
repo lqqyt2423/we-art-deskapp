@@ -1,10 +1,14 @@
 // Modules to control application life and create native browser window
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, MenuItem, clipboard } from 'electron';
 import * as path from 'path';
 import { generatePdfByLinks } from './utils/wx-spider';
 import logger from './utils/logger';
 import { initMkdirp } from './utils/index';
 import { get as getAd } from './utils/ad';
+
+// 空菜单
+const menu = new Menu();
+Menu.setApplicationMenu(menu);
 
 function createWindow() {
   // Create the browser window.
@@ -79,4 +83,31 @@ ipcMain.on('generate-pdf', async (event, urls: string[]) => {
 ipcMain.on('get-ad', async (event) => {
   const content = await getAd();
   event.reply('show-ad', content);
+});
+
+
+// 右键菜单
+ipcMain.on('right-click', (event, params: { hasVal: boolean }) => {
+  const rightMenu = new Menu();
+
+  rightMenu.append(new MenuItem({
+    label: '粘贴',
+    enabled: !!clipboard.readText(),
+    click() {
+      const text = clipboard.readText();
+      event.reply('right-click-paste', text);
+    },
+  }));
+
+  rightMenu.append(new MenuItem({ type: 'separator' }));
+
+  rightMenu.append(new MenuItem({
+    label: '清空',
+    enabled: params.hasVal,
+    click() {
+      event.reply('right-click-clear');
+    }
+  }));
+
+  rightMenu.popup({});
 });

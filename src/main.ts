@@ -4,6 +4,7 @@ import * as path from 'path';
 import { generatePdfByLinks } from './utils/wx-spider';
 import logger from './utils/logger';
 import { initMkdirp } from './utils/index';
+import { get as getAd } from './utils/ad';
 
 // 初始化
 initMkdirp();
@@ -73,4 +74,9 @@ ipcMain.on('generate-pdf', async (event, urls: string[]) => {
       event.reply('generate-pdf-reply', { status: 2, message: err.message });
     }
   }
+});
+
+ipcMain.on('get-ad', async (event) => {
+  const content = await getAd();
+  event.reply('show-ad', content);
 });

@@ -6,8 +6,25 @@ import logger from './utils/logger';
 import { initMkdirp } from './utils/index';
 import { get as getAd } from './utils/ad';
 
-// 空菜单
-const menu = new Menu();
+app.setName('微信离线助手');
+
+const isMac = process.platform === 'darwin';
+
+let menu: Menu;
+
+// mac 中如果直接设置空菜单，会出现不能用复制粘贴快捷键的问题
+if (isMac) {
+  const template = [
+    { role: 'appMenu' },
+    { role: 'editMenu' },
+  ] as any;
+  menu = Menu.buildFromTemplate(template);
+}
+// windows 设置空菜单
+else {
+  menu = new Menu();
+}
+
 Menu.setApplicationMenu(menu);
 
 function createWindow() {
@@ -106,7 +123,7 @@ ipcMain.on('right-click', (event, params: { hasVal: boolean }) => {
     enabled: params.hasVal,
     click() {
       event.reply('right-click-clear');
-    }
+    },
   }));
 
   rightMenu.popup({});

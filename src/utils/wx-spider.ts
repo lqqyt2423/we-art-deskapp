@@ -1,6 +1,6 @@
 import * as rp from 'request-promise';
 import FileCache, { existFn } from './file-cache';
-import { getPath, md5, runCmd } from './index';
+import { getPath, md5, runCmd, replacePathSpace } from './index';
 import * as cheerio from 'cheerio';
 import * as moment from 'moment';
 import logger from './logger';
@@ -124,8 +124,14 @@ export async function generateHtmlThenSave(urls: string[]): Promise<string> {
 
 export async function generatePdf(link: string, pathname: string) {
   // 低质量 A4 页脚页码居中 去除背景 渲染目录
-  const wkhtmltopdf = path.join(__dirname, '../bin/wkhtmltopdf');
-  const command = `${wkhtmltopdf} --lowquality --page-size A4 --footer-center [page] --footer-font-size 12 --no-background toc --xsl-style-sheet ${xslPath} ${link} ${pathname}`;
+  let wkhtmltopdf = path.join(__dirname, '../bin/wkhtmltopdf');
+
+  wkhtmltopdf = replacePathSpace(wkhtmltopdf);
+  const curXslPath = replacePathSpace(xslPath);
+  link = replacePathSpace(link);
+  pathname = replacePathSpace(pathname);
+
+  const command = `${wkhtmltopdf} --lowquality --page-size A4 --footer-center [page] --footer-font-size 12 --no-background toc --xsl-style-sheet ${curXslPath} ${link} ${pathname}`;
   const { stdout, stderr } = await runCmd(command);
   logger.info('generatePdf: link: %s, pathanme: %s, stdout: %s, stderr: %s', link, pathname, stdout, stderr);
 }

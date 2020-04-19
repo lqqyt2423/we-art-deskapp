@@ -27,3 +27,8 @@ export async function runCmd(command: string) {
   logger.info('runCmd:', command);
   return await execAsync(command);
 }
+
+// 替换路径中的空格
+export function replacePathSpace(pathname: string) {
+  return pathname.replace(/ /g, '\\ ');
+}

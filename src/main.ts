@@ -16,7 +16,9 @@ let menu: Menu;
 if (isMac) {
   const template = [
     { role: 'appMenu' },
+    { role: 'fileMenu' },
     { role: 'editMenu' },
+    { role: 'viewMenu' },
   ] as any;
   menu = Menu.buildFromTemplate(template);
 }

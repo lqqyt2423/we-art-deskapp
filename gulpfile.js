@@ -9,9 +9,9 @@ async function preBuildAsset() {
   await del('dist');
   return src([
     'src/bin/*',
-    'src/image/*',
-    'src/style/*',
-    'src/*.html',
+    'src/frontend/image/*',
+    'src/frontend/style/*',
+    'src/frontend/*.html',
     'src/utils/*.xsl',
     'src/utils/*.html',
   ], { base: 'src' }).pipe(dest('dist'));

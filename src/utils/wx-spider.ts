@@ -1,16 +1,17 @@
 import * as rp from 'request-promise';
 import FileCache, { existFn } from './file-cache';
-import { getPath, md5, runCmd } from './index';
+import { getPath, md5, runCmd, cp } from './index';
 import * as cheerio from 'cheerio';
 import * as moment from 'moment';
 import logger from './logger';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as mkdirp from 'mkdirp';
 
 const postTempHtml = fs.readFileSync(path.join(__dirname, 'postTemp.html'), 'utf8');
 const xslPath = path.resolve(__dirname, './wk_catalog.xsl');
 
-export async function getBody(link: string): Promise<string> {
+export async function getBody(link: string) {
   // todo: 更详细地识别链接
 
   const hash = md5(link);
@@ -38,7 +39,7 @@ export async function getBody(link: string): Promise<string> {
 
   if (!content) {
     await htmlCache.delete();
-    return '';
+    return null;
   }
 
   // 替换文章中的标题标签为 p 标签
@@ -58,8 +59,10 @@ export async function getBody(link: string): Promise<string> {
   // 2019.2.7 正文内容不隐藏
   content = content.replace('id="js_content" style="visibility: hidden;"', 'id="js_content" style="visibility: visible;"');
 
-  let imgs = [];
-  let pathnames = [];
+  const imgs = [] as string[];
+  const imgFilenames = [] as string[];
+  const pathnames = [] as string[];
+
   // 替换图片 src 属性
   content = content.replace(/data-src="(http.+?)"/g, (text, link) => {
     imgs.push(link);
@@ -70,6 +73,7 @@ export async function getBody(link: string): Promise<string> {
 
     const hash = md5(link);
     const filename = hash + '.' + extname;
+    imgFilenames.push(filename);
     const pathname = getPath('asset/' + filename);
     const srcname = '../asset/' + filename;
     pathnames.push(pathname);
@@ -94,15 +98,17 @@ export async function getBody(link: string): Promise<string> {
     }
   }
 
-  return content;
+  return { content, localImgs: pathnames, imgFilenames };
 }
 
 export async function generateHtml(urls: string[]): Promise<string> {
   let body = '';
 
   for (let i = 0, len = urls.length; i < len; i++) {
-    const content = await getBody(urls[i]);
-    body += `<div id="img-content">${content}</div>`;
+    const res = await getBody(urls[i]);
+    if (res && res.content) {
+      body += `<div id="img-content">${res.content}</div>`;
+    }
   }
 
   const html = postTempHtml.replace('POST_CONTENT', body);
@@ -144,4 +150,28 @@ export async function generatePdfByLinks(urls: string[]) {
   if (await existFn(pdfPathname)) return pdfPathname;
   await generatePdf(htmlPathname, pdfPathname);
   return pdfPathname;
+}
+
+export async function saveImgs(urls: string[]) {
+  let imgFilenames = [] as string[];
+  let imgs = [] as string[];
+
+  for (const url of urls) {
+    const res = await getBody(url);
+    if (res && res.localImgs) {
+      imgFilenames = imgs.concat(res.imgFilenames);
+      imgs = imgs.concat(res.localImgs);
+    }
+  }
+
+  const hash = md5(urls.join(','));
+  const dirname = getPath('target-asset/' + hash);
+  await mkdirp(dirname);
+
+  for (let i = 0; i < imgs.length; i++) {
+    const destPath = path.join(dirname, imgFilenames[i]);
+    await cp(imgs[i], destPath);
+  }
+
+  return dirname;
 }

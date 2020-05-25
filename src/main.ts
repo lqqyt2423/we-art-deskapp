@@ -1,7 +1,7 @@
 // Modules to control application life and create native browser window
 import { app, BrowserWindow, ipcMain, Menu, MenuItem, clipboard } from 'electron';
 import * as path from 'path';
-import { generatePdfByLinks } from './utils/wx-spider';
+import { generatePdfByLinks, saveImgs } from './utils/wx-spider';
 import logger from './utils/logger';
 import { initMkdirp } from './utils/index';
 import { get as getAd } from './utils/ad';
@@ -81,10 +81,6 @@ app.on('activate', () => {
 // #     0: 接口调用成功, 但是不显示成功信息
 // #     <= -1: 接口调用错误, 但是不显示错误信息
 ipcMain.on('generate-pdf', async (event, urls: string[]) => {
-  // await new Promise(resolve => {
-  //   setTimeout(resolve, 5000);
-  // });
-
   try {
     const pathname = await generatePdfByLinks(urls);
     event.reply('generate-pdf-reply', { status: 0, data: { pathname } });
@@ -96,6 +92,17 @@ ipcMain.on('generate-pdf', async (event, urls: string[]) => {
     } else {
       event.reply('generate-pdf-reply', { status: 2, message: err.message });
     }
+  }
+});
+
+ipcMain.on('save-imgs', async (event, urls: string[]) => {
+  try {
+    const pathname = await saveImgs(urls);
+    event.reply('save-imgs-reply', { status: 0, data: { pathname } });
+  } catch (err) {
+    logger.error(err);
+
+    event.reply('save-imgs-reply', { status: 2, message: err.message });
   }
 });
 

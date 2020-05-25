@@ -25,7 +25,7 @@ window.addEventListener('load', () => {
   let pdfPathname = '';
 
   openPdfEle.addEventListener('click', () => {
-    shell.openItem(pdfPathname);
+    shell.openExternal('file://' + pdfPathname);
   });
   openPdfDirEle.addEventListener('click', () => {
     shell.showItemInFolder(pdfPathname);

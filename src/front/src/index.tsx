@@ -19,6 +19,8 @@ interface AppState {
   showPdf: boolean;
   pdfPathname: string;
   adHtml: string;
+
+  mode: 'pdf' | 'imgs';
 }
 
 class App extends React.Component<{}, AppState> {
@@ -33,10 +35,12 @@ class App extends React.Component<{}, AppState> {
       showPdf: false,
       pdfPathname: '',
       adHtml: '',
+      mode: 'pdf',
     };
 
     this.handleTextareaChange = this.handleTextareaChange.bind(this);
     this.handleGeneratePdf = this.handleGeneratePdf.bind(this);
+    this.handleSaveImgs = this.handleSaveImgs.bind(this);
   }
 
   componentDidMount() {
@@ -48,8 +52,7 @@ class App extends React.Component<{}, AppState> {
       this.setState({ textareaValue: '' });
     });
 
-
-    ipcRenderer.on('generate-pdf-reply', (event, res) => {
+    const resHandler = (event, res) => {
       if (res.status === 2) {
         this.alertMsg('错误：' + res.message, 'error');
       }
@@ -58,7 +61,10 @@ class App extends React.Component<{}, AppState> {
       }
 
       this.setState({ generatingPdf: false });
-    });
+    };
+
+    ipcRenderer.on('generate-pdf-reply', resHandler);
+    ipcRenderer.on('save-imgs-reply', resHandler);
 
 
     ipcRenderer.on('show-ad', (event, content) => {
@@ -73,10 +79,7 @@ class App extends React.Component<{}, AppState> {
     this.setState({ textareaValue: event.target.value });
   }
 
-  handleGeneratePdf(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-    this.hideMsg();
-    this.setState({ showPdf: false });
-
+  getUrls() {
     const { textareaValue } = this.state;
     if (!textareaValue) return this.alertMsg('请确认输入微信文章链接', 'error');
 
@@ -89,8 +92,29 @@ class App extends React.Component<{}, AppState> {
     const isRepeat = urls.some((url, index) => urls.indexOf(url) !== index);
     if (isRepeat) return this.alertMsg('请勿重复输入微信文章链接', 'error');
 
-    this.setState({ generatingPdf: true });
-    ipcRenderer.send('generate-pdf', urls);
+    return urls;
+  }
+
+  handleGeneratePdf() {
+    this.hideMsg();
+    this.setState({ showPdf: false });
+
+    const urls = this.getUrls();
+    if (urls) {
+      this.setState({ generatingPdf: true, mode: 'pdf' });
+      ipcRenderer.send('generate-pdf', urls);
+    }
+  }
+
+  handleSaveImgs() {
+    this.hideMsg();
+    this.setState({ showPdf: false });
+
+    const urls = this.getUrls();
+    if (urls) {
+      this.setState({ generatingPdf: true, mode: 'imgs' });
+      ipcRenderer.send('save-imgs', urls);
+    }
   }
 
   alertMsg(text: string, level: 'info' | 'error' = 'info') {
@@ -100,7 +124,7 @@ class App extends React.Component<{}, AppState> {
   hideMsg() { this.alertMsg(''); }
 
   render() {
-    const { alertMsg, generatingPdf, showPdf, pdfPathname, adHtml } = this.state;
+    const { alertMsg, generatingPdf, showPdf, pdfPathname, adHtml, mode } = this.state;
 
     return (
       <div className="panel panel-default" style={{ margin: '0 auto', maxWidth: '1000px', minHeight: '467px' }}>
@@ -132,7 +156,10 @@ class App extends React.Component<{}, AppState> {
 
           <p>
             <button disabled={generatingPdf ? true : false} className="btn btn-primary" onClick={this.handleGeneratePdf}>
-              { generatingPdf ? '生成PDF中...' : '确认生成PDF' }
+              { (generatingPdf && mode === 'pdf') ? '生成PDF中...' : '确认生成PDF' }
+            </button>
+            <button style={{ marginLeft: '10px' }} disabled={generatingPdf ? true : false} className="btn btn-primary" onClick={this.handleSaveImgs}>
+              { (generatingPdf && mode === 'imgs') ? '保存图片中...' : '仅保存文章内图片'}
             </button>
           </p>
 
@@ -140,13 +167,17 @@ class App extends React.Component<{}, AppState> {
             !(showPdf && pdfPathname) ? '' : (
               <div className="alert alert-success overflow-auto">
                 <span className="align-middle">
-                  成功：{ pdfPathname.match(/\w+\.pdf$/)[0] }
+                  成功：{ pdfPathname }
                 </span>
                 <div className="float-right">
-                  <button
-                    className="btn btn btn-outline-primary btn-sm"
-                    onClick={() => { shell.openExternal('file://' + pdfPathname); }}
-                  >打开文件</button>
+                  {
+                    mode === 'pdf' && (
+                      <button
+                        className="btn btn btn-outline-primary btn-sm"
+                        onClick={() => { shell.openExternal('file://' + pdfPathname); }}
+                      >打开文件</button>
+                    )
+                  }
                   <button
                     className="btn btn btn-outline-primary btn-sm"
                     style={{ marginLeft: '10px' }}

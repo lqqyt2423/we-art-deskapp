@@ -2,7 +2,7 @@
 // It has the same sandbox as a Chrome extension.
 
 const electron = require('electron');
-window.electron = {
+(window as any).electron = {
   ipcRenderer: electron.ipcRenderer,
   shell: electron.shell,
 };

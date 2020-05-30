@@ -6,6 +6,9 @@ import logger from './utils/logger';
 import { initMkdirp } from './utils/index';
 import { get as getAd } from './utils/ad';
 
+const env = process.env.NODE_ENV;
+const isDev = env === 'development';
+
 app.setName('微信离线助手');
 
 const isMac = process.platform === 'darwin';
@@ -41,7 +44,11 @@ function createWindow() {
   });
 
   // and load the index.html of the app.
-  mainWindow.loadFile('./frontend/index.html');
+  if (isDev) {
+    mainWindow.loadURL('http://localhost:8080');
+  } else {
+    mainWindow.loadFile('./front/dist/index.html');
+  }
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();

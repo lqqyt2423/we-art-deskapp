@@ -2,6 +2,9 @@
   "include": [
     "src/**/*"
   ],
+  "exclude": [
+    "src/front"
+  ],
   "compilerOptions": {
     "target": "ES5",
     "outDir": "./dist/",

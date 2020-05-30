@@ -159,7 +159,7 @@ export async function saveImgs(urls: string[]) {
   for (const url of urls) {
     const res = await getBody(url);
     if (res && res.localImgs) {
-      imgFilenames = imgs.concat(res.imgFilenames);
+      imgFilenames = imgFilenames.concat(res.imgFilenames);
       imgs = imgs.concat(res.localImgs);
     }
   }

@@ -34,6 +34,14 @@ export async function getBody(link: string) {
     $('#publish_time').html(pubDateStr);
   }
 
+  // 文章标题下面发表于
+  const provinceNameMatch = html.match(/  provinceName: '(.+)',/);
+  if (provinceNameMatch) {
+    const provinceName = provinceNameMatch[1];
+    $('#js_ip_wording').text(provinceName);
+    $('#js_ip_wording_wrp').removeAttr('style');
+  }
+
   content = $('#img-content').html() || '';
   content = content.trim();
 
@@ -44,7 +52,7 @@ export async function getBody(link: string) {
 
   // 替换文章中的标题标签为 p 标签
   // 除了标题外
-  content = content.replace(/<h2 class="rich_media_title" id="activity-name">((.|\n)*?)<\/h2>/g, (text, title) => {
+  content = content.replace(/<h1 class="rich_media_title " id="activity-name">((.|\n)*?)<\/h1>/g, (text, title) => {
     return `THE_TMP_TITLE_H2_BEGIN${title}THE_TMP_TITLE_H2_END`;
   });
   content = content.replace(/(<\/?)h[1-6]/g, (a, b) => {
@@ -54,7 +62,10 @@ export async function getBody(link: string) {
   content = content.replace(/THE_TMP_TITLE_H2_END/g, '</h2>');
 
   // 文章标题下面的公众号链接去除 a 标签
-  content = content.replace(/(<span class="rich_media_meta rich_media_meta_nickname" id="profileBt">)(.|\n)*?<a href="javascript:void\(0\);" id="js_name">((.|\n)+?)<\/a>/, '$1$3');
+  content = content.replace(
+    /(<span class="rich_media_meta rich_media_meta_nickname" id="profileBt">)(.|\n)*?<a href="javascript:void\(0\);" id="js_name">((.|\n)+?)<\/a>/,
+    '$1$3'
+  );
 
   // 2019.2.7 正文内容不隐藏
   content = content.replace('id="js_content" style="visibility: hidden;"', 'id="js_content" style="visibility: visible;"');

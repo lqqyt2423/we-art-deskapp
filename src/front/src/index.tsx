@@ -7,7 +7,7 @@ import wxPayImg from './image/wx-pay.jpg';
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-const { ipcRenderer, shell } = window.electron;
+const { generatePdf, saveImgsFn, openFile, openDir, textareaRightClick, onTextareaRightClickAction } = window.electron;
 
 interface AppState {
   textareaValue: string;
@@ -24,7 +24,6 @@ interface AppState {
 }
 
 class App extends React.Component<{}, AppState> {
-
   constructor(props: any) {
     super(props);
 
@@ -45,34 +44,13 @@ class App extends React.Component<{}, AppState> {
 
   componentDidMount() {
     // 右键菜单
-    ipcRenderer.on('right-click-paste', (event, content) => {
-      this.setState({ textareaValue: (this.state.textareaValue || '') + content });
-    });
-    ipcRenderer.on('right-click-clear', () => {
-      this.setState({ textareaValue: '' });
-    });
-
-    const resHandler = (event, res) => {
-      if (res.status === 2) {
-        this.alertMsg('错误：' + res.message, 'error');
+    onTextareaRightClickAction((action, value) => {
+      if (action === 'paste') {
+        this.setState({ textareaValue: (this.state.textareaValue || '') + value });
+      } else if (action === 'clear') {
+        this.setState({ textareaValue: '' });
       }
-      else if (res.status === 0) {
-        this.setState({ showPdf: true, pdfPathname: res.data.pathname });
-      }
-
-      this.setState({ generatingPdf: false });
-    };
-
-    ipcRenderer.on('generate-pdf-reply', resHandler);
-    ipcRenderer.on('save-imgs-reply', resHandler);
-
-
-    ipcRenderer.on('show-ad', (event, content) => {
-      if (!content) return;
-
-      this.setState({ adHtml: content });
     });
-    ipcRenderer.send('get-ad');
   }
 
   handleTextareaChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
@@ -84,7 +62,7 @@ class App extends React.Component<{}, AppState> {
     if (!textareaValue) return this.alertMsg('请确认输入微信文章链接', 'error');
 
     const urls = textareaValue.trim().split('\n');
-    const isWechatArticle = urls.every(url => {
+    const isWechatArticle = urls.every((url) => {
       return /http.+?mp.weixin.qq.com.+/.test(url);
     });
     if (!isWechatArticle) return this.alertMsg('请输入正确的微信文章链接', 'error');
@@ -102,7 +80,16 @@ class App extends React.Component<{}, AppState> {
     const urls = this.getUrls();
     if (urls) {
       this.setState({ generatingPdf: true, mode: 'pdf' });
-      ipcRenderer.send('generate-pdf', urls);
+      generatePdf(urls)
+        .then((pdfPathname) => {
+          this.setState({ showPdf: true, pdfPathname });
+        })
+        .catch((err) => {
+          this.alertMsg('错误：' + err.message, 'error');
+        })
+        .finally(() => {
+          this.setState({ generatingPdf: false });
+        });
     }
   }
 
@@ -113,7 +100,16 @@ class App extends React.Component<{}, AppState> {
     const urls = this.getUrls();
     if (urls) {
       this.setState({ generatingPdf: true, mode: 'imgs' });
-      ipcRenderer.send('save-imgs', urls);
+      saveImgsFn(urls)
+        .then((pdfPathname) => {
+          this.setState({ showPdf: true, pdfPathname });
+        })
+        .catch((err) => {
+          this.alertMsg('错误：' + err.message, 'error');
+        })
+        .finally(() => {
+          this.setState({ generatingPdf: false });
+        });
     }
   }
 
@@ -121,7 +117,9 @@ class App extends React.Component<{}, AppState> {
     this.setState({ alertMsg: { level, text } });
   }
 
-  hideMsg() { this.alertMsg(''); }
+  hideMsg() {
+    this.alertMsg('');
+  }
 
   render() {
     const { alertMsg, generatingPdf, showPdf, pdfPathname, adHtml, mode } = this.state;
@@ -145,69 +143,69 @@ class App extends React.Component<{}, AppState> {
               onContextMenu={(event) => {
                 event.preventDefault();
                 const hasVal = !!this.state.textareaValue;
-                ipcRenderer.send('right-click', { hasVal });
+                textareaRightClick(hasVal);
               }}
             />
           </p>
 
-          { !alertMsg.text ? '' : (
-            <p className={ alertMsg.level === 'info' ? 'text-info' : 'text-danger' }>{alertMsg.text}</p>
-          ) }
+          {!alertMsg.text ? '' : <p className={alertMsg.level === 'info' ? 'text-info' : 'text-danger'}>{alertMsg.text}</p>}
 
           <p>
             <button disabled={generatingPdf ? true : false} className="btn btn-primary" onClick={this.handleGeneratePdf}>
-              { (generatingPdf && mode === 'pdf') ? '生成PDF中...' : '确认生成PDF' }
+              {generatingPdf && mode === 'pdf' ? '生成PDF中...' : '确认生成PDF'}
             </button>
             <button style={{ marginLeft: '10px' }} disabled={generatingPdf ? true : false} className="btn btn-primary" onClick={this.handleSaveImgs}>
-              { (generatingPdf && mode === 'imgs') ? '保存图片中...' : '仅保存文章内图片'}
+              {generatingPdf && mode === 'imgs' ? '保存图片中...' : '仅保存文章内图片'}
             </button>
           </p>
 
-          {
-            !(showPdf && pdfPathname) ? '' : (
-              <div className="alert alert-success overflow-auto">
-                <span className="align-middle">
-                  成功：{ pdfPathname }
-                </span>
-                <div className="float-right">
-                  {
-                    mode === 'pdf' && (
-                      <button
-                        className="btn btn btn-outline-primary btn-sm"
-                        onClick={() => { shell.openExternal('file://' + pdfPathname); }}
-                      >打开文件</button>
-                    )
-                  }
+          {!(showPdf && pdfPathname) ? (
+            ''
+          ) : (
+            <div className="alert alert-success overflow-auto">
+              <span className="align-middle">成功：{pdfPathname}</span>
+              <div className="float-right">
+                {mode === 'pdf' && (
                   <button
                     className="btn btn btn-outline-primary btn-sm"
-                    style={{ marginLeft: '10px' }}
-                    onClick={() => { shell.showItemInFolder(pdfPathname); }}
-                  >打开文件夹</button>
-                </div>
+                    onClick={() => {
+                      openFile(pdfPathname);
+                    }}
+                  >
+                    打开文件
+                  </button>
+                )}
+                <button
+                  className="btn btn btn-outline-primary btn-sm"
+                  style={{ marginLeft: '10px' }}
+                  onClick={() => {
+                    openDir(pdfPathname);
+                  }}
+                >
+                  打开文件夹
+                </button>
               </div>
-            )
-          }
+            </div>
+          )}
 
           <hr />
 
-          { !adHtml ? '' : (
-            <div className="alert alert-info" dangerouslySetInnerHTML={{ __html: adHtml }}></div>
-          ) }
+          {!adHtml ? '' : <div className="alert alert-info" dangerouslySetInnerHTML={{ __html: adHtml }}></div>}
 
           <div>
             <p>欢迎关注公众号，及时获取软件更新信息。</p>
-            <p><img style={{ maxWidth: '500px' }} src={gzhImg} /></p>
+            <p>
+              <img style={{ maxWidth: '500px' }} src={gzhImg} />
+            </p>
             <p>若此软件对您有所帮助，欢迎赞赏。</p>
-            <p><img style={{ maxWidth: '300px' }} src={wxPayImg} /></p>
+            <p>
+              <img style={{ maxWidth: '300px' }} src={wxPayImg} />
+            </p>
           </div>
-
         </div>
       </div>
-    )
+    );
   }
 }
 
-ReactDOM.render(
-  <App />,
-  document.getElementById('app')
-);
+ReactDOM.render(<App />, document.getElementById('app'));

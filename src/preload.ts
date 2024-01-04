@@ -1,8 +1,12 @@
-// All of the Node.js APIs are available in the preload process.
-// It has the same sandbox as a Chrome extension.
+const { ipcRenderer } = require('electron');
+const { contextBridge } = require('electron/renderer');
 
-const electron = require('electron');
-(window as any).electron = {
-  ipcRenderer: electron.ipcRenderer,
-  shell: electron.shell,
-};
+contextBridge.exposeInMainWorld('electron', {
+  generatePdf: (urls: string[]) => ipcRenderer.invoke('generatePdf', urls),
+  saveImgsFn: (urls: string[]) => ipcRenderer.invoke('saveImgsFn', urls),
+  openFile: (file: string) => ipcRenderer.invoke('openFile', file),
+  openDir: (file: string) => ipcRenderer.invoke('openDir', file),
+
+  textareaRightClick: (hasVal: boolean) => ipcRenderer.send('textarea-right-click', hasVal),
+  onTextareaRightClickAction: (callback) => ipcRenderer.on('textarea-right-click-action', (_event, action, value) => callback(action, value)),
+});

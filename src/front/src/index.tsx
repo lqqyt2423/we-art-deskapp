@@ -4,6 +4,7 @@ import './style/style.css';
 
 import gzhImg from './image/gzh.jpg';
 import wxPayImg from './image/wx-pay.jpg';
+import sponsorMeImg from './image/sponsor-me.jpg';
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
@@ -163,7 +164,9 @@ class App extends React.Component<{}, AppState> {
             ''
           ) : (
             <div className="alert alert-success overflow-auto">
-              <span className="align-middle">成功：{pdfPathname}</span>
+              <span className="align-middle" style={{ wordBreak: 'break-all' }}>
+                成功：{pdfPathname}
+              </span>
               <div className="float-right">
                 {mode === 'pdf' && (
                   <button
@@ -197,9 +200,9 @@ class App extends React.Component<{}, AppState> {
             <p>
               <img style={{ maxWidth: '500px' }} src={gzhImg} />
             </p>
-            <p>若此软件对您有所帮助，欢迎赞赏。</p>
+            <p>若此软件对您有所帮助，欢迎赞赏。赞赏时请备注力气强微信离线助手。</p>
             <p>
-              <img style={{ maxWidth: '300px' }} src={wxPayImg} />
+              <img style={{ maxWidth: '300px' }} src={sponsorMeImg} />
             </p>
           </div>
         </div>

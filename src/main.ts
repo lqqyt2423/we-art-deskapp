@@ -8,7 +8,7 @@ import { initMkdirp } from './utils/index';
 const env = process.env.NODE_ENV;
 const isDev = env === 'development';
 
-app.setName('微信离线助手');
+app.setName('力气强微信离线助手');
 
 const isMac = process.platform === 'darwin';
 

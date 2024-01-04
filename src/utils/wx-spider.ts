@@ -122,6 +122,11 @@ export async function generateHtml(urls: string[]): Promise<string> {
     }
   }
 
+  body += `<div id="img-content" class="new-page" style="text-align: center;">
+  <p>此PDF由<span style="color: blue;">力气强微信离线助手</span>生成</p>
+  <p>关注微信公众号<span style="color: blue;">力气强</span>获取软件下载地址</p>
+  </div>`;
+
   const html = postTempHtml.replace('POST_CONTENT', body);
   return html;
 }

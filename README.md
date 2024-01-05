@@ -30,6 +30,6 @@
 
 ### 联系作者及赞赏
 
-![gzh.jpg](src/image/gzh.jpg)
+![gzh.jpg](src/front/src/image/gzh.jpg)
 
-![wx-pay.jpg](src/image/wx-pay.jpg)
+![wx-pay.jpg](src/front/src/image/sponsor-me.jpg)

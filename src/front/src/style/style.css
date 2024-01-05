@@ -1,4 +1,27 @@
-.markdown-body { padding: 30px; }
+body {
+  user-select: none; /* 禁止选择文字 */
+  -moz-user-select: none; /* Firefox */
+  -webkit-user-select: none; /* Chrome, Safari, Opera */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+
+  overflow: hidden;
+  font-size: 14px;
+  background-color: rgb(236, 229, 225);
+  cursor: default;
+}
+
+.can-user-select {
+  user-select: auto; /* 可以选择文字 */
+  -moz-user-select: auto; /* Firefox */
+  -webkit-user-select: auto; /* Chrome, Safari, Opera */
+  -ms-user-select: auto; /* Internet Explorer/Edge */
+}
+
+.markdown-body {
+  padding: 30px;
+}
 @media (max-width: 767px) {
-  .markdown-body { padding: 15px; }
+  .markdown-body {
+    padding: 15px;
+  }
 }

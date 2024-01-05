@@ -7,6 +7,7 @@ import logger from './logger';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
+import { getIsVip } from './services';
 
 const postTempHtml = fs.readFileSync(path.join(__dirname, 'postTemp.html'), 'utf8');
 const xslPath = path.resolve(__dirname, './wk_catalog.xsl');
@@ -112,7 +113,7 @@ export async function getBody(link: string) {
   return { content, localImgs: pathnames, imgFilenames };
 }
 
-export async function generateHtml(urls: string[]): Promise<string> {
+export async function generateHtml(urls: string[], isVip = false): Promise<string> {
   let body = '';
 
   for (let i = 0, len = urls.length; i < len; i++) {
@@ -122,10 +123,12 @@ export async function generateHtml(urls: string[]): Promise<string> {
     }
   }
 
-  body += `<div id="img-content" class="new-page" style="text-align: center;">
-  <p>此PDF由<span style="color: blue;">力气强微信离线助手</span>生成</p>
-  <p>关注微信公众号<span style="color: blue;">力气强</span>获取软件下载地址</p>
-  </div>`;
+  if (!isVip) {
+    body += `<div id="img-content" class="new-page" style="text-align: center;">
+    <p>此PDF由<span style="color: blue;">力气强微信离线助手</span>生成</p>
+    <p>关注微信公众号<span style="color: blue;">力气强</span>获取软件下载地址</p>
+    </div>`;
+  }
 
   const html = postTempHtml.replace('POST_CONTENT', body);
   return html;
@@ -134,10 +137,11 @@ export async function generateHtml(urls: string[]): Promise<string> {
 export async function generateHtmlThenSave(urls: string[]): Promise<string> {
   const hash = md5(urls.join(','));
   const filename = hash + '.html';
-  const pathname = getPath('target-html/' + filename);
+  const isVip = await getIsVip();
+  const pathname = isVip ? getPath('vip-target-html/' + filename) : getPath('target-html/' + filename);
 
   const cache = new FileCache(pathname, async () => {
-    return await generateHtml(urls);
+    return await generateHtml(urls, isVip);
   });
   await cache.set();
 

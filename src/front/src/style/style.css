@@ -11,10 +11,10 @@ body {
 }
 
 .can-user-select {
-  user-select: auto; /* 可以选择文字 */
-  -moz-user-select: auto; /* Firefox */
-  -webkit-user-select: auto; /* Chrome, Safari, Opera */
-  -ms-user-select: auto; /* Internet Explorer/Edge */
+  user-select: text; /* 可以选择文字 */
+  -moz-user-select: text; /* Firefox */
+  -webkit-user-select: text; /* Chrome, Safari, Opera */
+  -ms-user-select: text; /* Internet Explorer/Edge */
 }
 
 .markdown-body {

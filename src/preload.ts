@@ -9,4 +9,7 @@ contextBridge.exposeInMainWorld('electron', {
 
   textareaRightClick: (hasVal: boolean) => ipcRenderer.send('textarea-right-click', hasVal),
   onTextareaRightClickAction: (callback) => ipcRenderer.on('textarea-right-click-action', (_event, action, value) => callback(action, value)),
+
+  getIsVip: () => ipcRenderer.invoke('getIsVip'),
+  setIsVip: (code: string) => ipcRenderer.invoke('setIsVip', code),
 });

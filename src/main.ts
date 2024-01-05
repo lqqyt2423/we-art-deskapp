@@ -4,6 +4,7 @@ import * as path from 'path';
 import { generatePdfByLinks, saveImgs } from './utils/wx-spider';
 import logger from './utils/logger';
 import { initMkdirp } from './utils/index';
+import { getIsVip, setIsVip } from './utils/services';
 
 const env = process.env.NODE_ENV;
 const isDev = env === 'development';
@@ -91,6 +92,9 @@ app.whenReady().then(() => {
 
     rightMenu.popup({});
   });
+
+  ipcMain.handle('getIsVip', (event) => getIsVip());
+  ipcMain.handle('setIsVip', (event, code: string) => setIsVip(code));
 });
 
 // Quit when all windows are closed.

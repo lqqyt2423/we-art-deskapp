@@ -124,8 +124,8 @@ class ToPdf extends React.Component<{}, ToPdfState> {
             ''
           ) : (
             <div className="alert alert-success">
-              <div style={{ wordBreak: 'break-all' }}>
-                成功：<span style={{ userSelect: 'text' }}>{pdfPathname}</span>
+              <div style={{ wordBreak: 'break-all' }} className="can-user-select">
+                成功：{pdfPathname}
               </div>
               <div style={{ marginTop: '10px' }}>
                 <button
